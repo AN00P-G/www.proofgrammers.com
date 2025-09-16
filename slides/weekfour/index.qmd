@@ -1,0 +1,449 @@
+---
+title: "Computational Problems"
+description: "Grasping the types of computation"
+date: "2025-09-15"
+date-format: long
+author: Gregory M. Kapfhammer
+execute:
+  echo: true
+format:
+  live-revealjs:
+    completion: true
+    theme: default
+    css: ../css/styles.css
+    history: false
+    scrollable: true
+    transition: slide
+    highlight-style: github
+    footer: "Proofgrammers"
+---
+
+# Wait, we've not given a formal definition of a computational problem! Can we now?
+
+## What is a computational problem?
+
+::: {.incremental style="margin-top: -0.5em; font-size: 0.825em;"} 
+
+- {{< iconify fa6-solid lightbulb >}} **Problems versus programs**
+    - **Computational problem**: describes *what* we want to compute
+    - **Computer program**: describes *how* to compute a solution
+    - One problem can have many different program solutions
+    - Some programs may be correct, while others are incorrect
+
+:::
+
+::: {.fragment style="margin-top: -0.5em; font-size: 0.825em;"}
+
+- {{< iconify fa6-solid lightbulb >}} **Our exploration strategy**
+    - Examine sorting as a concrete example
+    - Define formal mathematical framework
+    - Understand graphs, strings, and languages
+    - Categorize different types of computational problems
+
+:::
+
+## Programs solve problems
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.85em;"}
+
+- {{< iconify fa6-solid gear >}} **Classic example: sorting words**
+  - **Problem**: Sort a list of words lexicographically
+  - **Input**: `"banana grape banana apple"`
+  - **Output**: `"apple banana banana grape"`
+- {{< iconify fa6-solid gear >}} **Sorting challenges**
+    - **Correctness**: Does it always produce the right answer?
+    - **Efficiency**: How fast is the sorting program for different inputs?
+
+:::
+
+::: {.fragment .fade .boxed-content style="font-size: 0.9em;"}
+
+{{< iconify fa6-solid lightbulb >}} Programs solve problems --- but different
+programs can solve the same problem in very different ways! Let's explore this
+further!
+
+:::
+
+## Two sorting implementations
+
+```{pyodide}
+#| autorun: true
+#| max-lines: 10
+def pythonSort(inString):
+    """Efficient sorting using Python's built-in function."""
+    words = sorted(inString.split())
+    return ' '.join(words)
+
+def bubbleSort(inString):
+    """Correct but inefficient bubble sort algorithm."""
+    words = inString.split()
+    while not isSorted(words):
+        for i in range(len(words)-1):
+            if words[i+1] < words[i]:
+                words[i], words[i+1] = words[i+1], words[i]
+    return ' '.join(words)
+
+def isSorted(words):
+    """Check if word list is sorted."""
+    for i in range(len(words)-1):
+        if words[i+1] < words[i]:
+            return False
+    return True
+
+# test both implementations
+test_input = "banana grape banana apple"
+print("Python sort:", pythonSort(test_input))
+print("Bubble sort:", bubbleSort(test_input))
+```
+
+::: {.fragment .fade-up  style="font-size: 0.9em;"}
+
+- Define two different sorting functions for lists of strings
+- Each function should produce same sorted result!
+
+:::
+
+## Broken sorting implementation
+
+```{pyodide}
+#| autorun: true
+#| max-lines: 10
+def brokenSort(inString):
+    """Buggy sorting - infinite loop on duplicate elements!"""
+    words = inString.split()
+    while not isSortedBroken(words):
+        for i in range(len(words)-1):
+            if words[i+1] < words[i]:
+                words[i], words[i+1] = words[i+1], words[i]
+    return ' '.join(words)
+
+def isSortedBroken(words):
+    """Buggy version: uses <= instead of <"""
+    for i in range(len(words)-1):
+        # BUG: should be "<", not "<="
+        if words[i+1] <= words[i]:
+            return False
+    return True
+
+# Test with distinct elements - works fine
+test_distinct = "grape banana apple"
+print("Broken sort (distinct):", brokenSort(test_distinct))
+
+# Test with duplicates would cause infinite loop!
+print("Broken sort would hang on: 'banana grape banana apple'")
+```
+
+::: {.fragment .fade-up style="font-size: 0.95em; margin-top: 0.2em;"}
+
+{{< iconify fa6-solid lightbulb >}} A program doesn't truly solve a problem
+unless it terminates on *all* inputs and always produces the correct answer!
+
+:::
+
+## Mathematical foundations
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.85em;"}
+
+- {{< iconify fa6-solid gear >}} **Graphs: fundamental building blocks**
+  - **Graph**: collection of nodes with edges between them
+  - **Path**: sequence of nodes joined by edges
+  - **Cycle**: path that starts and ends at same node
+  - **Directed graph**: edges have direction
+
+- {{< iconify fa6-solid gear >}} **String representations**
+  - Graph: `"a,b a,c b,d c,d d,e"`
+  - Path: `"a,b,d,e"`
+  - Weighted graph: `"a,b,7 a,c,3 b,d,2"`
+- **Graphs can also be represented visually or with lists or matrices**!
+
+:::
+
+## Alphabets and strings
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.80em;"}
+
+- {{< iconify fa6-solid gear >}} **Alphabet $\Sigma$**
+  - Finite set of symbols (e.g., ASCII characters)
+  - $\Sigma^*$ means all possible strings over alphabet $\Sigma$
+  - Empty string $\epsilon$ is always included
+  - **Example**: $\Sigma = \{0, 1\} \Rightarrow \Sigma^* = \{\epsilon, 0, 1, 00, 01, 10, 11, 000, ...\}$
+  - **Example**: $\Sigma = \{a, b\} \Rightarrow \Sigma^* = \{\epsilon, a, b, aa, ab, ba, bb, aaa, ...\}$
+
+- {{< iconify fa6-solid gear >}} **Language**
+  - Any subset of $\Sigma^*$, can be finite or infinite
+  - **Examples**: all palindromes, all valid Python programs
+- **Alphabets define the building blocks for program input and output!**
+
+:::
+
+## Set operations on languages
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.825em;"}
+
+- {{< iconify fa6-solid gear >}} **Union** ($L_1 \cup L_2$)
+  - Contains strings that are in either $L_1$ or $L_2$ (or both)
+  - **Example**: $\{a, ab\} \cup \{b, ab\} = \{a, b, ab\}$
+
+- {{< iconify fa6-solid gear >}} **Intersection** ($L_1 \cap L_2$)
+  - Contains strings that are in both $L_1$ and $L_2$
+  - **Example**: $\{a, ab, abc\} \cap \{ab, abc, bc\} = \{ab, abc\}$
+
+- {{< iconify fa6-solid gear >}} **Complement** ($\overline{L}$)
+  - Contains all strings in $\Sigma^*$ that are not in $L$
+  - **Example**: If $L = \{G, G^3, G^5, ...\}$ (odd powers of $G$), then
+  $\overline{L} = \{\epsilon, G^2, G^4, G^6, ...\}$ (even powers including
+  empty string)
+
+:::
+
+## String operations on languages
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.75em;"}
+
+- {{< iconify fa6-solid gear >}} **Concatenation** ($L_1 L_2$ or $L_1 + L_2$)
+  - All strings formed by joining a string from $L_1$ with a string from $L_2$
+  - **Example**: $\{a, ab\} + \{b, c\} = \{ab, ac, abb, abc\}$
+
+- {{< iconify fa6-solid gear >}} **Repetition** ($L^*$)
+  - Contains all strings formed by concatenating zero or more strings from $L$
+  - Always includes $\epsilon$ (zero concatenations)
+  - **Example**: $\{ab\}^* = \{\epsilon, ab, abab, ababab, ...\}$
+  - **Example**: $\{a, b\}^* = \{\epsilon, a, b, aa, ab, ba, bb, aaa, ...\}$
+
+- {{< iconify fa6-solid lightbulb >}} These operations allow us to build complex
+languages from simpler ones and form the foundation for automata theory!
+
+- {{< iconify fa6-solid lightbulb >}} Automata theory is the study of finite
+state machines and their ability to recognize patterns in strings, which we
+explore later this semester!
+
+:::
+
+## Define a computational problem: map input strings to valid solutions
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.9em;"}
+
+- {{< iconify fa6-solid gear >}} **Mathematical definition**
+  - **Computational problem** defined by a function $F$
+  - A computational problem $F$ maps strings to *sets* of strings
+  - $F(s)$ is the **solution set** for input string $s$
+  - Each element of $F(s)$ is a valid **solution** to the problem
+- **Examples**: BeginsWithA, ShortestPath, or Palindromes
+- Any particular input to a problem is called an **instance**
+- Problem instances are classified as **positive** or **negative**
+
+:::
+
+## Example: `BeginsWithA` problem
+
+```{pyodide}
+#| autorun: true
+#| max-lines: 13
+def beginsWithA(inString):
+    """Find all words that begin with 'a'."""
+    words = inString.split()
+    solutions = []
+    for word in words:
+        if word.lower().startswith('a'):
+            solutions.append(word)
+    if not solutions:
+        return ["no"]  # no solutions found
+    return solutions
+
+# test the function
+test_input = "she ate a red apple"
+solutions = beginsWithA(test_input)
+print(f"Input: '{test_input}'")
+print(f"Solution set: {solutions}")
+print(f"Any one solution is valid: '{solutions[0]}'")
+test_input = "cat dog bird"
+solutions = beginsWithA(test_input)
+print(f"There is no valid solution: '{solutions[0]}'")
+```
+
+## Positive and negative instances
+
+```{pyodide}
+#| autorun: true
+#| max-lines: 10
+def classifyInstance(problem_result):
+    """Classify an instance as positive or negative."""
+    if problem_result == ["no"] or problem_result == "no":
+        return "negative"
+    else:
+        return "positive"
+
+# examples for BeginsWithA
+print("Instance 'cat dog bird':", classifyInstance(beginsWithA("cat dog bird")))
+print("Instance 'she ate apples':", classifyInstance(beginsWithA("she ate apples")))
+```
+
+::: {.fragment .fade-up style="font-size: 0.9em; margin-top: 0.2em;"}
+
+- **Positive instance**: at least one valid solution exists
+- **Negative instance**: no valid solutions exist to problem
+
+:::
+
+## Computational problem categories
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.825em;"}
+
+- {{< iconify fa6-solid gear >}} **Search problems**
+  - Find any valid solution
+  - *Example*: Find a path in a graph
+
+:::
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.825em;"}
+
+- {{< iconify fa6-solid gear >}} **Optimization problems**
+  - Find the *best* solution according to some criteria
+  - *Example*: Find the *shortest* path in a graph
+
+:::
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.825em;"}
+
+- {{< iconify fa6-solid gear >}} **Decision problems**
+  - Answer only "yes" or "no"
+  - *Example*: Does a path exist between two nodes?
+
+:::
+
+## Advantages of different problems
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.95em;"}
+
+- **Decision problems**:
+  - *Advantage*: elegant for stating and proving results
+  - *Disadvantage*: not used directly in real-world problems
+
+- **General problems**:
+  - *Advantage*: correspond directly to real-world problems
+  - *Disadvantage*: messy for proof and theoretical analysis
+
+- {{< iconify fa6-solid lightbulb >}} **We will often pick the problem formulation
+that best suits our needs, often focusing on decision problems**
+- {{< iconify fa6-solid lightbulb >}} **Often possible to convert between problem types**
+
+:::
+
+## Converting between problem types
+
+::: incremental
+
+- Pathfinding example for a graph:
+  - `FindPath` is a search problem
+    - *Input*: graph of nodes and edges
+    - *Input*: start and end nodes
+    - *Output*: path from start to end
+  - `HasPath` is a decision problem
+  - `HasPath(s) = "yes"` if `FindPath(s)` returns a non-empty solution path and
+    `HasPath(s) = "no"` for all other `FindPath(s)` outputs
+
+:::
+
+## Decision problems and SISO programs
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.85em;"}
+
+- {{< iconify fa6-solid gear >}} **Decision problem characteristics**
+  - Solution set is always `"yes"` or `"no"`
+  - Simpler to analyze theoretically
+  - Foundation for complexity classes
+
+- {{< iconify fa6-solid gear >}} **SISO programs**
+  - Single Input, Single Output
+  - *Input*: string representing problem instance
+  - *Output*: string "yes" or "no"
+  - *Example*: `startsWithZ` program
+
+- **Remember, not all decision problems are computable!**
+
+:::
+
+## Decision and recognition
+
+::: incremental
+
+- `yesOnString`: uncomputable and undecidable
+- `crashOnString`: uncomputable and undecidable
+- `startsWithZ`: uncomputable and undecidable
+- `hasShortestPath`: computable and decidable
+
+:::
+
+::: {.fragment .fade .boxed-content style="font-size: 0.8em;"}
+
+- Decision problems are same as the question of membership in a language
+- Recognizing a language answers "yes" for strings in the language
+- However, recognizing can be undefined on negative instances
+- Intuitively, language recognition is "easier" than deciding
+
+:::
+
+## Meaning of "solving" a problem?
+
+::: {.incremental style="margin-top: -0.25em; font-size: 0.775em;"}
+
+- {{< iconify fa6-solid gear >}} **Formal definition**
+  - Program $P$ **solves** a problem $F$ if:
+  - For all valid inputs $s$: $P(s) \in F(s)$
+  - Program must terminate on all inputs
+  - Program must return a valid solution
+  - $P$ computes $F$ if $P(I)$ is *always* a solution to $F$
+- Exploring the `SortWords` problem:
+  - Both `pythonSort` and `bubbleSort` solve it
+  - `brokenSort` does *not* solve it
+    - Correct answer when it returns
+    - Infinite loop on some inputs
+
+:::
+
+## Computability and decidability
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.8em;"}
+
+- {{< iconify fa6-solid gear >}} **Computable problems**
+  - A problem $F$ is **computable** if there exists a program that solves it
+  - All instances can be solved correctly
+  - Program terminates on all inputs
+
+:::
+
+::: {.incremental style="margin-top: -0.45em; font-size: 0.8em;"}
+
+- {{< iconify fa6-solid gear >}} **Uncomputable problems**
+  - No program can solve all instances
+  - We've already seen examples (e.g., the perfect bug finder)
+  - There are fundamental limits of computation
+
+- Proofgrammers must be able to distinguish between problems that *can* be
+computed from those that *cannot*! And, be able to explain *why* this is the
+case! Avoid the temptation of simply saying "oh, the halting problem".
+
+:::
+
+## Key insights for proofgrammers
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.8em;"}
+
+- {{< iconify fa6-solid lightbulb >}} **Problems versus solutions**
+  - Abstract problems have concrete program implementations
+  - Multiple correct approaches may exist
+  - Correctness requires termination + valid solutions
+
+:::
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.8em;"}
+
+- {{< iconify fa6-solid lightbulb >}} **Mathematical precision**
+  - Formal definitions enable rigorous analysis
+  - String representations make abstract concepts concrete
+  - Sets of solutions capture multiple valid answers
+
+- **Understanding computational problems formally prepares us to prove
+fundamental limits and explore computational complexity!**
+
+:::

@@ -80,7 +80,75 @@ coding and writing tools that use large language models (LLMs) like Claude
 Sonnet 4 or GPT-4. Make it clear that the prosegrammer who uses these tools is
 ultimately responsible for wielding them correctly and ethically.
 
+## Implement New Slides for Chapter Four, "What is a Computational Problem?"
+
+- You have access to the content of the book in the file:
+`What-Can-Be-Computed.pdf` and `What-Can-Be-Computed.md` that is in the root of
+this repository.
+- You have access to the slides of the book in PPTX (which is hard for you to
+read) and a QMD file (which is easier for you to read) in the
+`theoreticalmachines/wcbc-slides/` directory.
+- You have access to the source code connected to this book in the directory
+`theoreticalmachines/wcbc-code/`
+- I have created a template file for the slides in the `slides/weekfour/index.qmd`
+- I would like you to create a starting version of the slides for Chapter Four:
+"What is a Computational Problem?" in the `slides/weekfour/index.qmd` file.
+- One challenge of this chapter is that it contains a lot of images (e.g., a
+picture of a graph with a cycle in it). I don't want you to link directly to any
+images in the slides that you produce --- the content can only be in the
+index.qmd file. If you know how to draw the diagrams using something with a
+standard package in Python, then you can do that. Otherwise, only explain the
+details about the graphs in short words or phrases or with source code.
+- Make sure to only explain concepts that are connected to Chapter Four.
+- Make sure to review all the prior slides that I have created in the `slides/`
+directory and the subdirectories for prior weeks in `weekone/` and `weektwo/`
+and `weekthree/` to ensure that your slides are formatted and laid out just
+like the content that I have already created.
+- Do not make slides if they are not directly connected to the content in the
+book, the content in the slides (i.e., the PPTX or the extracted QMD file) or in
+the source code.
+- Make sure that you connect the slides to the theme of being a "proofgrammer"
+as explained in the course syllabus that is available in `syllabus/index.qmd`.
+- Please follow all the rules and regulations for creating this content and make
+sure that you notify me when you have completed this task.
+
 ## Support for Content
+
+### Week Four Slides Enhancement: Set Operations Addition
+
+**Missing Content Identification and Resolution**:
+
+- **Set Operations Definition Slide Added**: Added comprehensive slide defining union ($L_1 \cup L_2$), intersection ($L_1 \cap L_2$), complement ($\overline{L}$), concatenation ($L_1 L_2$), and repetition ($L^*$) operations on languages
+- **Mathematical Rigor**: Each operation includes formal mathematical notation and concrete examples using small alphabets like $\{a, b\}$ to demonstrate concepts clearly
+- **Pedagogical Examples**: Specific examples such as $\{a, ab\} \cup \{b, ab\} = \{a, b, ab\}$ and $\{ab\}^* = \{\epsilon, ab, abab, ababab, ...\}$ illustrate how operations work in practice
+- **Connection to Automata Theory**: Explicitly linked these operations to their foundational role in automata theory and formal language construction
+
+**Content Completeness Review**:
+
+- **Comprehensive Chapter 4 Coverage**: Verified that slides already covered all major Chapter 4 concepts including computational problem definitions, problem categories, SISO programs, and computability theory
+- **No Additional Missing Content**: Review of existing slides confirmed coverage of graphs, alphabets, strings, languages, decision problems, and formal problem definitions
+- **Appropriate Balance**: Content maintains proper balance between theoretical rigor and practical Python implementations for proofgrammers
+
+**Quality Assurance and Verification**:
+
+- **Successful Rendering**: All slides render correctly with `quarto render slides/weekfour/index.qmd`
+- **Layout Verification**: Used headless browser screenshot testing to confirm proper slide layout at 1920x1080 presentation resolution
+- **Mathematical Notation**: LaTeX mathematical expressions display correctly for set operations and formal definitions
+- **Fragment Animation**: Incremental content reveals function properly to support effective presentation flow
+
+**Technical Implementation Details**:
+
+- **Set Operation Examples**: Provided concrete examples using simple finite languages to make abstract concepts accessible
+- **Visual Organization**: Used appropriate iconify icons and boxed content to highlight key takeaways
+- **Font Sizing**: Maintained readability standards with appropriate font sizes for mathematical notation and example content
+- **Content Flow**: New slides integrate seamlessly with existing content progression from alphabets to languages to operations
+
+**Theoretical Foundation Support**:
+
+- **Formal Language Theory**: Set operations form the mathematical foundation for constructing complex languages from simpler ones
+- **Automata Theory Preparation**: These operations are essential for understanding regular expressions, finite automata, and language recognition
+- **Computational Complexity**: Understanding language operations prepares students for analyzing decision problems and complexity classes
+- **Chapter 4 Alignment**: Content directly supports "What Can be Computed" Chapter 4 learning objectives about computational problems and formal language theory
 
 ### Rewriting Content in Several Files
 
@@ -130,6 +198,107 @@ programs as data, which is essential for understanding undecidability proofs
 modify, making abstract theoretical concepts concrete and accessible
 - This concept bridges the gap between theoretical understanding and practical
 programming skills that proofgrammers need to develop
+
+### Week Three Slides for Impossible Programs (Chapter 3)
+
+**Chapter 3 Core Concepts and Theoretical Foundation**:
+
+- **Proof by Contradiction**: Introduced as natural human reasoning pattern with
+everyday example (milk purchase scenario) connecting to mathematical formalism
+where statement S implies consequence C, but C contradicts known truth T,
+therefore S is false
+- **Programs Analyzing Other Programs**: Demonstrates `countLines.py` analyzing
+`multiplyAll.py` and self-analyzing with `countLines(rf('countLines.py'))`,
+establishing foundation for meta-computation and self-reflection in programs
+- **Self-Reflection Paradox**: Turing's 1936 insight that self-reflective
+capability both enables powerful computation and creates fundamental limitations
+- **Decision Programs Suite**: Implementation of `containsGAGA`, `yes`,
+`longerThan1K`, and `maybeLoop` programs with comprehensive examples showing
+program-on-program analysis from WCBC Figure 3.2
+
+**The Impossibility Proof Structure**:
+
+- **Hypothetical yesOnString Program**: Definition where `yesOnString(P, I)`
+returns "yes" if program P returns "yes" on input I, "no" otherwise - essential
+for formal impossibility proof
+- **yesOnSelf Simplification**: `yesOnSelf(P) = yesOnString(P, P)` asking "Does
+program P return 'yes' when given itself as input?" - creates conditions for
+logical contradiction
+- **notYesOnSelf Construction**: Returns opposite of `yesOnSelf` result,
+creating program that returns "yes" if and only if it returns "no" when applied
+to itself - demonstrating logical impossibility
+- **Direct Contradiction**: `notYesOnSelf("notYesOnSelf.py")` creates
+paradoxical situation where program must simultaneously return "yes" and "no"
+
+**Proof by Contradiction Implementation**:
+
+- **Step-by-step logical structure**: Assume yesOnString exists (statement S),
+derive that notYesOnSelf can be created (consequence C), but notYesOnSelf leads
+to logical contradiction (contradicts known impossibility), therefore yesOnString
+cannot exist
+- **Compact weirdYesOnString proof**: More direct approach where
+`weirdYesOnString(P)` immediately creates contradiction when applied to itself,
+eliminating intermediate steps
+- **Crash detection impossibility**: `weirdCrashOnSelf` program demonstrates
+same contradiction pattern applies to crash prediction, showing broader scope of
+uncomputability results
+
+**Python Code Examples and Interactive Learning**:
+
+- **Decision program implementations**: All functions properly implement SISO
+requirements returning only "yes" or "no" strings
+- **Hypothetical program simulations**: Code demonstrates theoretical behavior
+of impossible programs for educational purposes while clearly marking them as
+impossible to implement
+- **Self-analysis experiments**: Interactive `pyodide` block allows students to
+experiment with `analyzeProgram` function performing legal self-analysis to
+contrast with impossible universal analysis
+- **Progressive complexity**: Examples build from simple pattern recognition to
+sophisticated logical contradictions
+
+**Practical Implications and Real-World Connections**:
+
+- **Software Engineering Limits**: No perfect bug finder or universal crash
+detector possible, but partial solutions remain valuable for practical
+development
+- **Static Analysis Tools**: Work effectively on specific program classes and
+common scenarios, guided by impossibility results toward productive applications
+- **Research and Development**: Understanding computational boundaries prevents
+wasted effort on unsolvable problems while focusing innovation on achievable
+goals
+
+**Educational Methodology and Theoretical Support**:
+
+- **Foundation for Advanced Topics**: Prepares students for Turing machines,
+Church-Turing thesis, and formal undecidability results in subsequent chapters
+- **Connection to Literature**: Examples directly correspond to WCBC Chapter 3
+content and standard computability theory textbooks
+- **Interactive Engagement**: Students can modify and experiment with code
+examples to reinforce understanding of theoretical concepts
+- **Critical Thinking Development**: Discussion prompts encourage analysis of
+computational limits and practical tool development strategies
+
+**Verification and Quality Assurance**:
+
+- **Successful Compilation**: All slides render correctly with `quarto render`
+and preview at http://localhost:8081/slides/weekthree/index.html
+- **Code Execution**: Python examples execute properly with expected outputs,
+including complex logical contradiction demonstrations
+- **Layout Standards**: Titles fit single lines, content properly distributed,
+fragment animations function correctly, and icons display appropriately
+- **Theoretical Accuracy**: Content aligns with standard computability theory
+presentations and WCBC textbook Chapter 3 learning objectives
+
+**Content Support References**:
+
+- **Alan Turing (1936)**: "Computing Machinery and Intelligence" - original
+impossibility results through self-reference and logical contradiction
+- **WCBC Chapter 3**: "Some Impossible Python Programs" - direct source for
+examples and proof structure
+- **Computability Theory Literature**: Standard presentations of halting
+problem, universal computation, and undecidability proofs
+- **Software Engineering Research**: Contemporary applications of theoretical
+limits to practical tool development and automated program analysis
 
 ### Week One Slides for Theory of Computation
 

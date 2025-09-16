@@ -1,0 +1,568 @@
+---
+title: "Impossible Programs"
+description: "Exploring fundamental limits of computation"
+date: "2025-09-08"
+date-format: long
+author: Gregory M. Kapfhammer
+execute:
+  echo: true
+format:
+  live-revealjs:
+    completion: true
+    theme: default
+    css: ../css/styles.css
+    history: false
+    scrollable: true
+    transition: slide
+    highlight-style: github
+    footer: "Proofgrammers"
+---
+
+# Impossible programs?
+
+::: {.fragment style="margin-top: -0.5em; font-size: 0.8em;"} 
+
+- {{< iconify fa6-solid lightbulb >}} **The central question of uncomputability**
+    - Some problems cannot be solved by any program
+    - Even infinite time and memory cannot solve them
+    - **This is one of the most profound results in computer science**
+
+:::
+
+::: {.fragment style="margin-top: -0.5em; font-size: 0.8em;"}
+
+- {{< iconify fa6-solid lightbulb >}} **Our exploration strategy**
+    - Start with proof by contradiction
+    - Build programs that analyze other programs  
+    - Demonstrate fundamental impossibility results
+    - Connect to practical software engineering limits
+
+:::
+
+## Proof by contradiction
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.8em;"}
+
+- {{< iconify fa6-solid gear >}} **Natural human reasoning pattern**
+  - **Statement S**: "I bought the milk on Monday"
+  - **Consequence C**: "I was in town on Monday"  
+  - **Known fact T**: "I was out of town on Monday"
+  - **Conclusion**: Since C contradicts T, statement S must be false
+
+:::
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.8em;"}
+
+- {{< iconify fa6-solid gear >}} **Mathematical formulation**
+  - If $S$ implies $C$, but $C$ is false, then $S$ is false
+  - To prove something is true, assume its opposite and seek contradiction
+  - Essential technique for impossibility proofs in computer science
+  - Note this proof technique does not constructively show what is true
+
+:::
+
+## Programs analyzing other programs
+
+```{pyodide}
+#| autorun: true
+#| max-lines: 10
+def countLines(inString: str) -> str:
+    """Count the number of lines in the provided text content."""
+    lines = inString.split('\n')
+    return str(len(lines))
+
+# simulate reading a program file
+def rf(filename: str) -> str:
+    """Simulate reading file content for demonstration."""
+    sample_programs = {
+        "multiply.py": '''def multiply(x, y):
+    return str(int(x) * int(y))
+
+result = multiply("6", "7")
+print(f"Result: {result}")''',
+        "countLines.py": '''def countLines(inString):
+    lines = inString.split('\\n')
+    return str(len(lines))'''
+    }
+    return sample_programs.get(filename, "# File not found")
+
+# demonstrate program analyzing another program
+multiply_program = rf("multiply.py")
+line_count = countLines(multiply_program)
+print(f"The multiply.py program has {line_count} lines")
+
+# demonstrate program analyzing itself
+countlines_program = rf("countLines.py")
+self_count = countLines(countlines_program)
+print(f"The countLines.py program has {self_count} lines")
+```
+
+::: {.fragment style="margin-top: 0.25em; font-size: 0.9em;"}
+
+- A program can analyze itself or another program
+- Completed at the level of source code text or output
+
+:::
+
+## Self-reflection in computation
+
+::: {.incremental style="margin-top: 0.25em; font-size: 0.9em;"}
+
+- {{< iconify fa6-solid diagram-project >}} **Programs can analyze themselves**:
+    - `countLines(rf('countLines.py'))` reports its line count
+    - Similar to how human brains can think about thinking
+    - **Key**: programs can examine their own structure
+
+:::
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.9em;"}
+
+- {{< iconify fa6-solid diagram-project >}} **Self-reflection extends and limits computation**:
+    - Self-reflection enables powerful computation
+    - But it also creates fundamental limitations
+    - Capability that makes programs powerful also constrains them
+    - **Key**: Some problems become impossible due to self-reflection
+
+:::
+
+# Foundation of impossibility
+
+::: incremental
+
+- Programs can analyze themselves
+- Programs can analyze other programs
+- Self-reflection creates contradictions
+- Proof by contradiction reveals impossibility
+- Discover fundamental limits of computation
+
+:::
+
+## Decision programs we need
+
+```{pyodide}
+#| autorun: true  
+#| max-lines: 5
+def containsGAGA(inString: str) -> str:
+    """Return yes if input contains GAGA."""
+    if 'GAGA' in inString:
+        return 'yes'
+    else:
+        return 'no'
+
+def yes(inString: str) -> str:
+    """Always return yes, ignoring input."""
+    return 'yes'
+
+def longerThan1K(inString: str) -> str:
+    """Return yes if input is longer than 1000 characters."""
+    if len(inString) > 1000:
+        return 'yes'
+    else:
+        return 'no'
+
+def maybeLoop(inString: str) -> str:
+    """Return yes/no for inputs with 'secret sauce', loop otherwise."""
+    if 'secret sauce' not in inString:
+        # infinite loop simulation - don't actually loop
+        return 'undefined (infinite loop)'
+    else:
+        if len(inString) % 2 == 0:
+            return 'yes'
+        else:
+            return 'no'
+
+# test the decision programs
+test_cases = ['CTGAGAT', 'programming', 'some secret sauce here']
+for test in test_cases:
+    print(f"Input: '{test}'")
+    print(f"  containsGAGA: {containsGAGA(test)}")
+    print(f"  yes: {yes(test)}")
+    print(f"  longerThan1K: {longerThan1K(test)}")
+    print(f"  maybeLoop: {maybeLoop(test)}")
+```
+
+## Program analysis examples
+
+```{python}
+# define analysis functions
+def containsGAGA(inString: str) -> str:
+    return 'yes' if 'GAGA' in inString else 'no'
+
+def yes(inString: str) -> str:
+    return 'yes'
+
+def longerThan1K(inString: str) -> str:
+    return 'yes' if len(inString) > 1000 else 'no'
+
+# simulate program files
+programs = {
+    'containsGAGA.py': 'def containsGAGA(inString):\n    return "yes" if "GAGA" in inString else "no"',
+    'yes.py': 'def yes(inString):\n    return "yes"',
+    'geneticString.txt': 'CTGAGAATTCGAGA'
+}
+
+def rf(filename: str) -> str:
+    return programs.get(filename, 'File not found')
+
+# programs analyzing other programs
+examples = [
+    ("containsGAGA('CTGAGAT')", containsGAGA('CTGAGAT')),
+    ("containsGAGA(rf('geneticString.txt'))", containsGAGA(rf('geneticString.txt'))),
+    ("yes(rf('containsGAGA.py'))", yes(rf('containsGAGA.py')))
+]
+
+for command, result in examples:
+    print(f"{command} = {result}")
+```
+
+## Review for current programs
+
+::: {.fragment .callout-note icon=true title="Summary of simple decision programs"}
+
+- `containsGAGA(inString)`: returns "yes" if input contains "GAGA", else "no"
+- `yes(inString)`: always returns "yes" regardless of input or input characteristics
+- `longerThan1K(inString)`: returns "yes" if input length > 1000, else "no"
+
+:::
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.95em;"}
+
+- **Are these programs computable**? *Yes*!
+- **Are these programs decidable**? *Yes*!
+- **Are these programs tractable**? *Yes*!
+- But, wait, what about `yesOnString`? *Woah, hold on*!
+- Or, what about `crashOnString`? *Woah, hold on*!
+
+:::
+
+# Uncomputability proof
+
+::: incremental
+
+- Define `yesOnString(P, I)`
+- Assume `yesOnString(P, I)` is computable
+- Create a contradiction to prove otherwise
+    - Define `yesOnSelf(P)` from `yesOnString(P, P)`
+    - Construct `notYesOnSelf(P)` from `yesOnSelf(P)`
+    - Prove `notYesOnSelf(P)` is contradictory
+- Conclude `yesOnString(P, I)` is impossible
+
+:::
+
+## Exploring `yesOnString`
+
+::: {.fragment style="margin-top: 0.1em; font-size: 0.85em;"}
+
+- **Definition**: `yesOnString(P, I)` returns:
+  - "yes" if P is a valid Python program, P(I) is defined, and P(I)="yes"
+  - "no" otherwise (invalid program, undefined output, or non-"yes")
+- **Question it answers**: Does program P return "yes" on input string I?
+- **Important note**: We don't provide the source code for `yesOnString`
+- **Reason**: We will prove it's impossible to write such a program!
+
+:::
+
+::: {.fragment .fade .boxed-content style="margin-top: 0.25em; font-size: 0.9em;"}
+
+{{< iconify fa6-solid microscope >}} The `yesOnString` program would solve a
+fundamental question about program behavior. Yet, as we'll see, asking this
+question leads to logical contradictions that make the program impossible!
+
+:::
+
+## Approximating `yesOnString`
+
+```python
+def yesOnStringApprox(progString, inString):   
+    if progString == rf('containsGAGA.py'):
+        return containsGAGA(inString)
+    elif progString == rf('longerThan1K.py'):
+        return longerThan1K(inString)
+    elif progString == rf('yes.py'):
+        return yes(inString)
+    elif progString == rf('maybeLoop.py'):
+        if not 'secret sauce' in inString: 
+            return 'no'
+        else:
+            return maybeLoop(inString)
+    else:
+        return 'unknown' 
+
+def testyesOnStringApprox():
+    testvals = [
+        ('containsGAGA.py', 'TTTTGAGATT', 'yes'),
+        ('containsGAGA.py', 'TTTTGAGTT', 'no'),
+        ('longerThan1K.py', 1500*'x', 'yes'),
+        ('longerThan1K.py', 'xyz', 'no'),
+        ('yes.py', 'xyz', 'yes'),
+        ('maybeLoop.py', '', 'no'),
+        ('maybeLoop.py', 'asdfhjksd', 'no'),
+        ('maybeLoop.py', 'secret sauce', 'yes'),
+        ('maybeLoop.py', 'xsecret sauce', 'no'),
+        ('maybeLoop.py', 'xsecret saucex', 'yes'),
+    ]
+    for (filename, inString, solution) in testvals:
+        val = yesOnStringApprox(rf(filename), inString)
+        utils.tprint(filename + ":", val)
+        assert val == solution
+```
+
+::: fragment
+
+- Approximates `yesOnString` for known programs and inputs
+
+:::
+
+## The `yesOnSelf` simplification
+
+::: {.incremental style="margin-top: 0.1em; font-size: 0.9em;"}
+
+- **Definition**: `yesOnSelf(P)` returns:
+  - `"yes"` if P is a valid Python program and P(P) = "yes"
+  - `"no"` otherwise
+
+- **Relationship to `yesOnString`**: 
+  - `yesOnSelf(P)` = `yesOnString(P, P)`
+  - Asks: "Does program P return 'yes' when given itself as input?"
+
+- **Why this matters for proofgrammers**: 
+  - Simpler to analyze than the two-parameter version
+  - Self-application creates the conditions for contradiction
+
+:::
+
+## Examples with `yesOnSelf`
+
+::: incremental
+
+- `yesOnSelf`("not a program") returns "no"
+- `yesOnSelf`("letters and numbers 1431") returns "no"
+- `yesOnSelf`("containsGAGA.py") returns "yes"
+- `yesOnSelf`("longerThan1K.py") returns "no"
+- `yesOnSelf`("yesOnSelf.py") returns "yes" or "no" or $...$?
+
+:::
+
+::: {.fragment .fade .boxed-content style="margin-top: 0.25em; font-size: 0.9em;"}
+
+{{< iconify fa6-solid bullhorn >}} **Get Ready**: What is the behavior of the
+`yesOnSelf` program when it is run on itself? We are going to introduce a
+"troublemaker" program that will create a contradiction and shed light on this
+issue!
+
+:::
+
+## Using hypothetical `yesOnSelf`
+
+```{python}
+# hypothetical behavior of yesOnSelf
+def hypothetical_yesOnSelf(P: str) -> str:
+    """HYPOTHETICAL: Check if program P returns 'yes' on itself."""
+    if P == "yes.py":
+        return "yes"
+    elif P == "containsGAGA.py":
+        return "yes"
+    else:
+        return "no"
+
+# show examples
+test_programs = ["yes.py", "containsGAGA.py", "longerThan1K.py"]
+print("Hypothetical yesOnSelf behavior:")
+for prog in test_programs:
+    result = hypothetical_yesOnSelf(prog)
+    print(f"yesOnSelf('{prog}') = {result}")
+```
+
+## Devastating `notYesOnSelf`
+
+```{python}
+# here's where the contradiction emerges!
+def notYesOnSelf(P: str) -> str:
+    """Return the opposite of what yesOnSelf would return."""
+    result = hypothetical_yesOnSelf(P)
+    return "no" if result == "yes" else "yes"
+
+# test on some programs
+test_cases = ["yes.py", "containsGAGA.py"]
+for prog in test_cases:
+    yes_result = hypothetical_yesOnSelf(prog)
+    not_result = notYesOnSelf(prog) 
+    print(f"yesOnSelf('{prog}') = {yes_result}")
+    print(f"notYesOnSelf('{prog}') = {not_result}")
+```
+
+::: {.incremental style="margin-top: 0.1em; font-size: 0.9em;"}
+
+- The actual `notYesOnSelf` always does the opposite of `yesOnSelf`! 
+
+:::
+
+## Running `notYesOnSelf`
+
+::: {.incremental style="margin-top: 0.1em; font-size: 0.9em;"}
+
+- `notYesOnSelf`("not a program") returns "yes"
+- `notYesOnSelf`("letters and numbers 1431") returns "yes"
+- `notYesOnSelf`("yes.py") returns "no"
+- `notYesOnSelf`("containsGAGA.py") returns "no"
+- `notYesOnSelf`("longerThan1K.py") returns "yes"
+- `notYesOnSelf`("notYesOnSelf.py") returns $...$ what?!
+
+:::
+
+::: {.fragment .fade .boxed-content style="margin-top: 0.05em; font-size: 0.9em;"}
+
+{{< iconify fa6-solid bullhorn >}} **Amazing**: Since no output is correct when
+`notYesOnSelf` is run on itself, we have discovered that `yesOnSelf` cannot
+exist! Let's explore these scenarios in greater detail to build understanding.
+
+:::
+
+## Revealing the contradiction
+
+::: {.fragment style="margin-top: 0.1em; font-size: 0.75em;"}
+
+- **Consider**: What happens when we run `notYesOnSelf("notYesOnSelf.py")`?
+
+- **Case 1**: Suppose it returns `"yes"`
+  - If `notYesOnSelf` returns "yes" on itself, then by definition,
+  `notYesOnSelf` should return "no" (opposite of what it actually returned).
+  **Contradiction!**
+
+- **Case 2**: Suppose it returns `"no"`
+  - If `notYesOnSelf` returns "no" on itself, then by definition, `notYesOnSelf`
+  should return "yes" (opposite of what it actually returned). **Contradiction!**
+
+:::
+
+::: {.fragment .fade .boxed-content style="margin-top: 0.25em; font-size: 0.9em;"}
+
+{{< iconify fa6-solid bullhorn >}} **No output is correct!** Whether
+`notYesOnSelf` returns "yes" or "no" on itself, it contradicts its own
+definition. Therefore, `notYesOnSelf` cannot exist and is a logical
+impossibility!
+
+:::
+
+## The impossibility proof structure
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.75em;"}
+
+- {{< iconify fa6-solid gear >}} **Step 1: Proof by contradiction**
+  - Assume `yesOnString` exists (our statement $S$)
+  - This would allow us to create `yesOnSelf` 
+  - And then create `notYesOnSelf`
+
+- {{< iconify fa6-solid gear >}} **Step 2: Derive contradiction**
+  - `notYesOnSelf("notYesOnSelf.py")` creates logical contradiction
+    - Returns "yes" if and only if it returns "no"
+    - No program can have this impossible property
+
+- {{< iconify fa6-solid gear >}} **Step 3: Conclude impossibility**
+  - Since assuming `yesOnString` exists leads to contradiction
+  - This means that `yesOnString` cannot logically exist
+
+:::
+
+# Wow, `yesOnString` is actually impossible!
+
+::: incremental
+
+- Other phrases for this result:
+    - "`yesOnString` is undecidable"
+    - "`yesOnString` is uncomputable"
+    - "`yesOnString` is algorithmically unsolvable"
+- **Formally proved a fundamental limit of computation!**
+
+:::
+
+## Practical implications 
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.75em;"}
+
+- {{< iconify fa6-solid gear >}} **No perfect bug finder**
+  - Cannot create a program that finds all bugs in all programs
+  - Static analysis tools work on many cases but not universally
+  - Software companies invest heavily in partial solutions
+
+- {{< iconify fa6-solid gear >}} **No universal crash detector**
+  - Cannot predict crashes for all possible program inputs
+  - Testing and runtime monitoring remain essential
+  - Impossibility doesn't mean "useless" --- it means "not universal"!
+
+- {{< iconify fa6-solid gear >}} **Fundamental computational limits**
+  - Some problems are unsolvable even with infinite resources
+  - **Proofgrammers must understand these boundaries**
+
+:::
+
+## Theory versus practice
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.725em;"}
+
+- {{< iconify fa6-solid gear >}} **What *is* impossible**
+  - Universal bug detection for all programs
+  - Perfect crash prediction for all inputs  
+  - Determining if any arbitrary program halts
+
+- {{< iconify fa6-solid gear >}} **What *is* possible**
+  - Bug detection for many specific program classes
+  - Crash prediction for many common scenarios
+  - Static analysis tools that work on practical codebases
+
+- {{< iconify fa6-solid gear >}} **Proofgrammer perspective**  
+  - Impossibility results guide what tools to build
+  - Focus effort on solvable sub-problems
+  - Understand fundamental computational boundaries
+
+:::
+
+## Why impossibility matters
+
+::: {.fragment style="margin-top: 0.1em; font-size: 0.75em;"}
+
+- {{< iconify game-icons team-idea >}} **Scientific understanding:**
+  - Reveals fundamental limits of computation itself
+  - Not about hardware limitations or current technology
+  - Shows logical boundaries that no algorithm can cross
+
+- {{< iconify game-icons team-idea >}} **Practical guidance:**
+  - Helps avoid impossible engineering goals
+  - Guides research toward productive directions  
+  - **Informs realistic expectations for automated tools**
+
+:::
+
+::: {.fragment .fade .boxed-content style="margin-top: 0.25em; font-size: 0.7em;"}
+
+{{< iconify fa6-solid microscope >}} Understanding impossibility is as
+important as understanding possibility. It prevents wasted effort on unsolvable
+problems and focuses innovation on achievable goals.
+
+:::
+
+## Key takeaways
+
+::: {.incremental style="margin-top: -0.15em; font-size: 0.75em;"}
+
+- {{< iconify fa6-solid gear >}} **Proof by contradiction**: Natural technique
+for impossibility results  
+- {{< iconify fa6-solid microscope >}} **Self-reflection**: Programs
+analyzing themselves creates contradictions
+- {{< iconify fa6-solid diagram-project >}} **Universal impossibilities**:
+`yesOnString` and `crashOnString` cannot exist
+- {{< iconify fa6-solid book-open >}} **Practical implications**: Static
+analysis works on sub-problems, not universally  
+
+:::
+
+::: {.fragment .fade .boxed-content style="margin-top: 0.25em; font-size: 0.8em;"}
+
+- {{< iconify fa6-solid lightbulb >}} **Wow, this was really brain breaking! Now, you
+should**:
+    - Read the chapter and hand-write or type out the key results
+    - Explain the key results to a member of this class
+    - Explain the key results to the instructor in office hours
+    - Bring your questions to the proofgrammer charette session
+
+:::
